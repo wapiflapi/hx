@@ -12,6 +12,9 @@ configuration then you won't see them. Change your color configuration to
 something more useful or submit a PR with a smarter solution, that will be
 appreciated.
 
-Thanks Raaka for the screenshot on OSX bellow.
+This is a screenshot under solarized via @BestPig.
+![screenshot soloarized](http://i.imgur.com/EFugRZ5.png)
+
+Thanks @Raaka for the screenshot on default OSX bellow.
 
 ![screenshot OSX](http://i.imgur.com/cEncXRG.png)
