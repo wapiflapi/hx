@@ -28,32 +28,29 @@ class BinDflts(BaseDflts):
     bpg = 1
     gpl = 4
     fmt = "{0:08b}"
-    hld = '        '
 
 
 class OctDflts(BaseDflts):
     bpg = 2
     gpl = 4
     fmt = "{0:03o}"
-    hld = '   '
 
 
 class HexDflts(BaseDflts):
     bpg = 4
     gpl = 4
     fmt = "{0:02x}"
-    hld = '  '
 
 
 class Dumper():
 
     def __init__(self, bpg=HexDflts.bpg, gpl=HexDflts.gpl,
-                 fmt=HexDflts.fmt, hld=HexDflts.hld, col=True):
+                 fmt=HexDflts.fmt, col=True):
         self.bpg = bpg
         self.gpl = gpl
         self.fmt = fmt
-        self.hld = hld
         self.col = col
+        self.hld = ' ' * len(fmt.format(0))
 
     def dump(self, f, addr=0):
 

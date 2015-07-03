@@ -24,6 +24,10 @@ if __name__ == '__main__':
     parser.add_argument("--no-columns", action='store_false', dest='columns',
                         help="don't hilight columns")
 
+    parser.add_argument("--bpg", type=int, help="bytes per group")
+    parser.add_argument("--gpl", type=int, help="groups per line")
+    parser.add_argument("--fmt", type=str, help="group format string")
+
     kind = parser.add_mutually_exclusive_group()
     kind.add_argument("-b", "--bin", action=hx.BinDflts,
                       help="show binary")
@@ -34,14 +38,14 @@ if __name__ == '__main__':
 
     parser.set_defaults(colors=sys.stdout.isatty())
 
-    parser.set_defaults(bpg=hx.HexDflts.bpg, gpl=hx.HexDflts.gpl,
-                        fmt=hx.HexDflts.fmt, hld=hx.HexDflts.hld)
+    parser.set_defaults(
+        bpg=hx.HexDflts.bpg, gpl=hx.HexDflts.gpl, fmt=hx.HexDflts.fmt)
 
     args = parser.parse_args()
 
     hx.init_colorama(args.colors)
 
-    dumper = hx.Dumper(args.bpg, args.gpl, args.fmt, args.hld, args.columns)
+    dumper = hx.Dumper(args.bpg, args.gpl, args.fmt, args.columns)
 
     ignored = () if args.spipe or args.debug  else BrokenPipeError
     catched = () if args.debug else BaseException
