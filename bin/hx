@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+
+import sys
+import argparse
+
+import hx
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("file", nargs="?", type=argparse.FileType("rb"),
+                        default=sys.stdin.buffer)
+
+    parser.add_argument("-c", "--colors", action="store_true",
+                        help="force colors")
+    parser.add_argument("--no-colors", action="store_false", dest='colors',
+                        help="strip colors")
+    parser.add_argument("--no-columns", action="store_false", dest='columns',
+                        help="do hilight columns")
+
+    parser.add_argument("-b", "--bin", action=hx.BinDflts,
+                        help="show binary")
+    parser.add_argument("-o", "--oct", action=hx.OctDflts,
+                        help="show octal")
+    parser.add_argument("-x", "--hex", action=hx.HexDflts,
+                        help="show hexadecimal")
+
+    parser.set_defaults(colors=sys.stdout.isatty())
+
+    parser.set_defaults(bpg=hx.HexDflts.bpg, gpl=hx.HexDflts.gpl,
+                        fmt=hx.HexDflts.fmt, hld=hx.HexDflts.hld)
+
+    args = parser.parse_args()
+
+    hx.init_colorama(args.colors)
+
+    dumper = hx.Dumper(args.bpg, args.gpl, args.fmt, args.hld, args.columns)
+    dumper.dump(args.file)
