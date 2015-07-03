@@ -51,6 +51,10 @@ def ignore_keyboardinterrupt(f):
         try:
             return f(*args, **kwargs)
         except KeyboardInterrupt:
+            try:
+                sys.stdout.flush()
+            except BrokenPipeError:
+                pass
             print('interrupted', file=sys.stderr)
             return None
     return wrapper
