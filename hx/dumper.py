@@ -1,6 +1,8 @@
+import sys
 import struct
 import string
 import argparse
+import functools
 
 import colorama
 
@@ -43,6 +45,17 @@ class HexDflts(BaseDflts):
     hld = '  '
 
 
+def ignore_keyboardinterrupt(f):
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except KeyboardInterrupt:
+            print('interrupted', file=sys.stderr)
+            return None
+    return wrapper
+
+
 class Dumper():
 
     def __init__(self, bpg=HexDflts.bpg, gpl=HexDflts.gpl,
@@ -53,6 +66,7 @@ class Dumper():
         self.hld = hld
         self.col = col
 
+    @ignore_keyboardinterrupt
     def dump(self, f, addr=0):
 
         nextbyte = self.get_byte(f)
