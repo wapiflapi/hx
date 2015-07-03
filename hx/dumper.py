@@ -45,21 +45,6 @@ class HexDflts(BaseDflts):
     hld = '  '
 
 
-def ignore_keyboardinterrupt(f):
-    @functools.wraps(f)
-    def wrapper(*args, **kwargs):
-        try:
-            return f(*args, **kwargs)
-        except KeyboardInterrupt:
-            try:
-                sys.stdout.flush()
-            except BrokenPipeError:
-                pass
-            print('interrupted', file=sys.stderr)
-            return None
-    return wrapper
-
-
 class Dumper():
 
     def __init__(self, bpg=HexDflts.bpg, gpl=HexDflts.gpl,
@@ -70,24 +55,25 @@ class Dumper():
         self.hld = hld
         self.col = col
 
-    @ignore_keyboardinterrupt
     def dump(self, f, addr=0):
 
         nextbyte = self.get_byte(f)
 
         while nextbyte is not None:
-            self.start_line(addr)
+            line = self.start_line(addr)
             for _ in range(self.gpl):
-                self.start_group()
+                line += self.start_group()
                 for _ in range(self.bpg):
                     addr += 1
-                    self.dump_byte(nextbyte)
+                    line += self.dump_byte(nextbyte)
                     nextbyte = None if nextbyte is None else self.get_byte(f)
-                self.end_group()
-            self.end_line()
+                line += self.end_group()
+            line += self.end_line()
 
-    def output(self, *args):
-        print(*args, end='', sep='')
+            line.append('\n')
+
+            text = ''.join(line)
+            sys.stdout.write(text)
 
     def get_byte(self, f):
         byte = f.read(1)
@@ -103,10 +89,10 @@ class Dumper():
         else:
             bck = colorama.Style.NORMAL
 
-        self.output(bck, self.color(byte), txt, colorama.Style.RESET_ALL)
-
         self.group.append(byte)
         self.line.append(byte)
+
+        return [bck, self.color(byte), txt, colorama.Style.RESET_ALL]
 
     def color(self, byte, text=True):
         if not byte:
@@ -129,19 +115,22 @@ class Dumper():
 
     def start_group(self):
         self.group = []
+        return []
 
     def end_group(self):
-        self.output(' ')
+        return [' ']
 
     def start_line(self, addr):
         self.line = []
         txt = '%x  ' % addr
         nil = '0' * max(10 - len(txt), 0)
-        self.output(colorama.Style.BRIGHT, colorama.Fore.BLACK,
-                    nil, colorama.Fore.WHITE, txt)
+        return [colorama.Style.BRIGHT, colorama.Fore.BLACK,
+                nil, colorama.Fore.WHITE, txt]
 
     def end_line(self):
-        self.output(colorama.Fore.WHITE, ' ')
+
+        output = [colorama.Fore.WHITE, ' ']
+
         for i, byte in enumerate(self.line):
 
             if self.col and not i % 2:
@@ -149,7 +138,7 @@ class Dumper():
             else:
                 bck = colorama.Style.NORMAL
 
-            self.output(bck, self.color(byte, text=False),
-                        self.printable(byte), colorama.Style.RESET_ALL)
+            output.extend([bck, self.color(byte, text=False),
+                           self.printable(byte), colorama.Style.RESET_ALL])
 
-        self.output('\n')
+        return output
