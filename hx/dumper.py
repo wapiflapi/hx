@@ -70,7 +70,8 @@ class Dumper():
             line.append('\n')
 
             text = ''.join(line)
-            sys.stdout.write(text)
+            # sys.stdout.write(text)
+            sys.stdout.buffer.write(text.encode("utf8"))
 
     def get_byte(self, f):
         byte = f.read(1)
